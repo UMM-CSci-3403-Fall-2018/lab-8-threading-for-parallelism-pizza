@@ -14,8 +14,8 @@ public class ThreadedMain {
             values[i] = random.nextInt();
         }
 
-        long result = mpd.bottomLeft(values);
-        System.out.println("The minimum distance for bottomLeft was " + result);
+        long result = mpd.minimumPairwiseDistance(values);
+        System.out.println("The minimum distance was " + result);
     }
 
 }

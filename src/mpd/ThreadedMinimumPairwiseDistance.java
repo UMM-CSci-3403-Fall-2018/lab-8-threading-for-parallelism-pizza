@@ -1,8 +1,44 @@
 package mpd;
 
 public class ThreadedMinimumPairwiseDistance implements MinimumPairwiseDistance {
+  private int[] values;
+  private long globalResult = Integer.MAX_VALUE;
 
-    public long bottomLeft(int[] values) {
+  @Override
+  public long minimumPairwiseDistance(int[] values){
+
+    Thread left = new Thread(new bottomLeft());
+    Thread right = new Thread(new bottomRight());
+    Thread mid = new Thread(new center());
+    Thread top = new Thread(new topRight());
+
+    Thread[] threads = new Thread[4];
+    threads[0] = left;
+    threads[1] = right;
+    threads[2] = mid;
+    threads[3] = top;
+
+    this.values = values;
+    for (int i=0; i<4; i++){
+      threads[i].start();
+    }
+    for (int i=0; i<4; i++){
+      try{
+        threads[i].join();
+      } catch (InterruptedException ioe) {
+        ioe.printStackTrace();
+      }
+    }
+    return globalResult;
+  }
+  private long updateGlobalResult(long localResult){
+    if (localResult < globalResult){
+      globalResult = localResult;
+    }
+    return globalResult;
+  }
+    private class bottomLeft implements Runnable {
+      public void run(){
       long result = Integer.MAX_VALUE;
       for (int i = 0; i < values.length/2; ++i) {
           for (int j = 0; j < i; ++j) {
@@ -12,38 +48,44 @@ public class ThreadedMinimumPairwiseDistance implements MinimumPairwiseDistance 
               }
           }
       }
-        return result;
+        updateGlobalResult(result);
     }
+  }
 
-    public long bottomRight(int[] values) {
+    private class bottomRight implements Runnable {
+      public void run(){
       long result = Integer.MAX_VALUE;
       for (int i = 0; i < values.length; ++i) {
-          for (int j = 0; j <= i - values.length/2; ++j) {
+          for (int j = 0; j + values.length/2 < i ; ++j) {
               long diff = Math.abs(values[i] - values[j]);
               if (diff < result) {
                   result = diff;
               }
           }
       }
-        return result;
+        updateGlobalResult(result);
     }
+  }
 
-    public long center(int[] values) {
+    private class center implements Runnable{
+      public void run(){
       long result = Integer.MAX_VALUE;
-      for (int j = 0; j + values.length/2 < values.length; ++j) {
-          for (int i = 0; i <= j; ++i) {
+      for (int j = 0; j < values.length/2; ++j) {
+          for (int i = values.length/2; i <= j + values.length/2; ++i) {
               long diff = Math.abs(values[j] - values[i]);
               if (diff < result) {
                   result = diff;
               }
           }
       }
-        return result;
+        updateGlobalResult(result);
     }
+  }
 
-    public long topRight(int[] values) {
+    private class topRight implements Runnable {
+      public void run(){
       long result = Integer.MAX_VALUE;
-      for (int i = 0; i < values.length; ++i) {
+      for (int i = values.length/2; i < values.length; ++i) {
           for (int j = values.length/2; j < i; ++j) {
               long diff = Math.abs(values[i] - values[j]);
               if (diff < result) {
@@ -51,10 +93,7 @@ public class ThreadedMinimumPairwiseDistance implements MinimumPairwiseDistance 
               }
           }
       }
-        return result;
+        updateGlobalResult(result);
     }
-
-    for (int i = 0; i < Integer.MAX_VALUE; i++){
-      result.join();
-    }
+  }
 }

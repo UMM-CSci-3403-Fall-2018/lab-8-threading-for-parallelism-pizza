@@ -43,8 +43,8 @@ public class ThreadedMinimumPairwiseDistance implements MinimumPairwiseDistance 
       for (int i = 0; i < values.length/2; ++i) {
           for (int j = 0; j < i; ++j) {
               long diff = Math.abs(values[i] - values[j]);
-              if (diff < result) {
-                  result = diff;
+              if (diff < localresult) {
+                  localresult = diff;
               }
           }
       }
@@ -93,7 +93,17 @@ public class ThreadedMinimumPairwiseDistance implements MinimumPairwiseDistance 
               }
           }
       }
+<<<<<<< HEAD
         updateGlobalResult(result);
     }
   }
+=======
+        return result;
+    }
+
+    for (int i = 0; i < numThreads; i++){
+      threads.join();
+    }
+
+>>>>>>> daa565f2ce03cb34dd1b936f41c82cc1e7c15016
 }
